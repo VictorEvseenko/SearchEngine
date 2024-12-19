@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: root
+    password: smk666skillbox777
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    hikari:
+      maximum-pool-size: 100
+      connection-timeout: 40000
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+indexing-settings:
+  sites:
+    - url: https://sendel.ru
+      name: sendel.ru
+    - url: http://www.playback.ru
+      name: playback.ru
+    - url: https://volochek.life
+      name: volocheck.life
+
+connection:
+  userAgent: "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
+  referer: "https://www.google.com"
