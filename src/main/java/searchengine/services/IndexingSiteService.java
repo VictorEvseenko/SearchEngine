@@ -1,6 +1,7 @@
 package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class IndexingSiteService
@@ -47,8 +49,8 @@ public class IndexingSiteService
             fillPagesDB();
             fillLemmasDB();
             fillIndexDB();
-        } catch (RuntimeException| InterruptedException ex) {
-            ex.printStackTrace();
+        } catch (RuntimeException | InterruptedException ex) {
+            log.error("Error: ", ex);
         }
         finally {
             indexingProcess.set(false);
@@ -57,25 +59,10 @@ public class IndexingSiteService
 
     private void refreshDBBeforeIndexing()
     {
-        List<SiteEntity> siteEntities = siteRepository.findAll();
-        List<Page> pages = pageRepository.findAll();
-        List<Lemma> lemmas = lemmaRepository.findAll();
-        List<Index> indexes = indexRepository.findAll();
-
-        for (Site site : sitesList.getSites()) {
-            for (Index index : indexes)
-                if(index.getPage().getSiteEntity().getUrl().equals(site.getUrl()))
-                    indexRepository.deleteById(index.getId());
-            for (Lemma lemma : lemmas)
-                if (lemma.getSiteEntity().getUrl().equals(site.getUrl()))
-                    lemmaRepository.deleteById(lemma.getId());
-            for (Page page : pages)
-                if (page.getSiteEntity().getUrl().equals(site.getUrl()))
-                    pageRepository.deleteById(page.getId());
-            for (SiteEntity siteEntity : siteEntities)
-                if (siteEntity.getUrl().equals(site.getUrl()))
-                    siteRepository.deleteById(siteEntity.getId());
-        }
+        indexRepository.deleteAll();
+        lemmaRepository.deleteAll();
+        pageRepository.deleteAll();
+        siteRepository.deleteAll();
     }
 
     private void fillSitesDB()
@@ -178,7 +165,7 @@ public class IndexingSiteService
                     indexingPage.setCode(document.connection().response().statusCode());
                     indexingPage.setContent(document.toString());
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error("Error: ", ex);
                 }
 
                 pageRepository.save(indexingPage);
